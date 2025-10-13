@@ -15,7 +15,7 @@ interface Cliente {
 
 const Index = () => {
   const [cliente, setCliente] = useState<Cliente | null>(null);
-  const slug = "tapas-bar-demo"; // En producción, esto vendría de la URL
+  const slug = "import.meta.env.VITE_CLIENT_SLUG"; // En producción, esto vendría de la URL
 
   useEffect(() => {
     const fetchCliente = async () => {
