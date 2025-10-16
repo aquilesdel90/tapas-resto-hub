@@ -12,12 +12,7 @@ interface Ubicacion {
   orden: number;
 }
 
-const defaultImages = [
-  locationDowntown,
-  locationWaterfront,
-  locationHistoric,
-  locationGarden,
-];
+const defaultImages = [locationDowntown, locationWaterfront, locationHistoric, locationGarden];
 
 export const LocationsGallery = ({ clienteId }: { clienteId: string }) => {
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
@@ -29,10 +24,8 @@ export const LocationsGallery = ({ clienteId }: { clienteId: string }) => {
         .select("*")
         .eq("cliente_id", clienteId)
         .order("orden");
-      
-      if (data) {
-        setUbicaciones(data);
-      }
+
+      if (data) setUbicaciones(data);
     };
 
     fetchUbicaciones();
@@ -42,7 +35,7 @@ export const LocationsGallery = ({ clienteId }: { clienteId: string }) => {
     <section className="py-20 px-4 bg-background">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-4xl font-bold text-center mb-12 text-foreground">
-          Our Locations
+          Nuestras Ubicaciones
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {ubicaciones.map((ubicacion, index) => (
@@ -56,7 +49,7 @@ export const LocationsGallery = ({ clienteId }: { clienteId: string }) => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
-                <p className="text-foreground font-semibold text-lg p-4 w-full">
+                <p className="text-white font-semibold text-lg p-4 w-full">
                   {ubicacion.nombre}
                 </p>
               </div>

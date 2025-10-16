@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { Helmet } from "react-helmet-async"
 import { supabase } from "@/integrations/supabase/client"
 import { Hero } from "@/components/Hero"
 import { AboutSection } from "@/components/AboutSection"
@@ -17,37 +18,28 @@ interface Cliente {
   direccion?: string | null
   instagram?: string | null
   facebook?: string | null
-  // agrega aquí cualquier otro campo que tengas en tu tabla
 }
 
-const Index = () => {
+export default function Index() {
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 1) Resolver el slug de forma robusta
+  // Resolver slug: env -> subdominio -> template
   const resolvedSlug = useMemo(() => {
-    // a) .env (Vite): VITE_CLIENT_SLUG=asador-don-jorge
     const envSlug = (import.meta as any).env?.VITE_CLIENT_SLUG as string | undefined
 
-    // b) subdominio: asador.midominio.com -> "asador"
     let subdomainSlug: string | undefined
     if (typeof window !== "undefined") {
-      const host = window.location.hostname // p.ej. asador-don-jorge.vercel.app
+      const host = window.location.hostname // p.ej. parrilla.vercel.app
       const parts = host.split(".")
-      // heurística: si tenés algo como "asador-don-jorge.vercel.app" o "asador.midominio.com"
       if (parts.length >= 3) subdomainSlug = parts[0]
-      // si usás dominio propio tipo "asador-don-jorge.com", podés mapearlo distinto
     }
 
-    // c) fallback al template
     return (envSlug || subdomainSlug || site.projectSlug || "template").toLowerCase()
   }, [])
 
-  // 2) Cargar datos del cliente desde Supabase (si existe)
   useEffect(() => {
     let isMounted = true
-    const controller = new AbortController()
-
     async function fetchCliente() {
       try {
         setLoading(true)
@@ -57,11 +49,8 @@ const Index = () => {
           .eq("slug", resolvedSlug)
           .single()
 
-        if (error) {
-          console.warn("[Supabase] clientes.single error:", error.message)
-        }
-        if (!isMounted) return
-        setCliente(data ?? null)
+        if (error) console.warn("[Supabase] clientes.single error:", error.message)
+        if (isMounted) setCliente(data ?? null)
       } catch (e: any) {
         console.warn("[Supabase] fetchCliente exception:", e?.message || e)
         if (isMounted) setCliente(null)
@@ -69,27 +58,31 @@ const Index = () => {
         if (isMounted) setLoading(false)
       }
     }
-
     fetchCliente()
-    return () => {
-      isMounted = false
-      controller.abort()
-    }
+    return () => { isMounted = false }
   }, [resolvedSlug])
 
-  // 3) Derivar props visuales mezclando Supabase y site.config.ts (fallback)
+  // Derivar props visuales con fallback al template
   const nombre = cliente?.nombre_restaurante || site.siteTitle
   const tagline = (cliente?.tagline ?? site.description) || ""
   const heroUrl = cliente?.url_imagen_hero || site.heroImage
 
-  // (Opcional) actualizar título del documento
+  // util: construir URL absoluta para og:image
+  const absoluteUrl = (path?: string) => {
+    if (!path) return undefined
+    if (/^https?:\/\//i.test(path)) return path
+    if (typeof window === "undefined") return undefined
+    return `${window.location.origin}/${path.replace(/^\/+/, "")}`
+  }
+
+  const pageTitle = `${nombre} – ${tagline || "Restaurante"}`.trim()
+  const pageDescription = tagline || site.description || "Descubrí nuestra propuesta."
+  const ogImage = absoluteUrl(heroUrl) || absoluteUrl(site.heroImage) || "/og-default.jpg"
+
   useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.title = nombre
-    }
+    if (typeof document !== "undefined") document.title = nombre
   }, [nombre])
 
-  // 4) Estados de carga / vacío
   if (loading && !cliente) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -100,15 +93,39 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Hero
-        nombre={nombre}
-        tagline={tagline}
-        imagenUrl={heroUrl || undefined}
-      />
+      {/* SEO dinámico */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta name="theme-color" content={site.primaryColor} />
+        <link rel="canonical" href={typeof window !== "undefined" ? window.location.href : ""} />
 
+        {/* Open Graph */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+        {/* (opcional) JSON-LD */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context":"https://schema.org",
+            "@type":"Restaurant",
+            "name": nombre,
+            "description": pageDescription,
+            "image": ogImage,
+            "telephone": site.phone || undefined,
+            "address": site.address || undefined
+          })}
+        </script>
+      </Helmet>
+
+      <Hero nombre={nombre} tagline={tagline} imagenUrl={heroUrl || undefined} />
       <AboutSection />
-
-      {/* Sólo si hay cliente válido mostramos secciones que dependen de su id */}
       {cliente?.id ? (
         <>
           <LocationsGallery clienteId={cliente.id} />
@@ -116,14 +133,10 @@ const Index = () => {
         </>
       ) : (
         <div className="mx-auto max-w-5xl p-6 text-sm text-muted-foreground">
-          {/* Fallback simple cuando no hay registro en Supabase */}
           Este sitio está usando los textos e imágenes del template por defecto.
         </div>
       )}
-
       <Footer />
     </div>
   )
 }
-
-export default Index

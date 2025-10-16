@@ -1,31 +1,25 @@
+import { site } from "@/lib/site";
+
 export const AboutSection = () => {
   return (
-    <section className="py-20 px-4 bg-secondary">
+    <section className="py-20 px-4" style={{ background: "var(--color-secondary)", color: "#fff" }}>
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-4xl font-bold text-center mb-12 text-foreground">
-          About Our Restaurant
-        </h2>
-        <div className="grid md:grid-cols-2 gap-8 text-muted-foreground">
+        <h2 className="text-4xl font-bold text-center mb-12">Sobre Nosotros</h2>
+        <div className="grid md:grid-cols-2 gap-8 opacity-95">
           <div>
             <p className="mb-4 leading-relaxed">
-              Welcome to our authentic Spanish tapas bar, where tradition meets modern culinary excellence. 
-              For over two decades, we've been serving the finest selection of traditional Spanish dishes, 
-              crafted with passion and the freshest ingredients.
+              {site.description || "Disfrutá una experiencia auténtica con recetas tradicionales y productos de primera calidad."}
             </p>
             <p className="leading-relaxed">
-              Our chefs bring generations of Spanish culinary heritage to every plate, ensuring an 
-              unforgettable dining experience that transports you straight to the heart of Spain.
+              Nuestro equipo combina técnicas clásicas con una visión moderna para ofrecer platos con identidad propia.
             </p>
           </div>
           <div>
             <p className="mb-4 leading-relaxed">
-              From our signature Jamón Ibérico to our perfectly seasoned Gambas al Ajillo, each dish 
-              tells a story of Spanish culture and gastronomy. We pride ourselves on using only the 
-              highest quality ingredients, imported directly from Spain.
+              Creemos en la estacionalidad, el respeto por el producto y la calidez en el servicio. Te esperamos.
             </p>
             <p className="leading-relaxed">
-              Join us for an authentic taste of Spain, where every meal is a celebration and every 
-              guest becomes part of our family.
+              Hacé tu reserva y vení a probar una selección pensada para compartir.
             </p>
           </div>
         </div>

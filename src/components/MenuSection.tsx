@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import patatrasBravas from "@/assets/patatas-bravas.jpg";
 import jamonIberico from "@/assets/jamon-iberico.jpg";
@@ -17,12 +15,13 @@ interface MenuItem {
   orden: number;
 }
 
-const defaultImages = [
-  patatrasBravas,
-  jamonIberico,
-  gambasAjillo,
-  pulpoGallega,
-];
+const defaultImages = [patatrasBravas, jamonIberico, gambasAjillo, pulpoGallega];
+
+const currency = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  maximumFractionDigits: 0,
+});
 
 const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
   const ref = useRef(null);
@@ -46,7 +45,9 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
       <div className="p-6">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-bold text-foreground">{item.plato}</h3>
-          <span className="text-primary font-bold text-xl">${item.precio}</span>
+          <span className="font-bold text-xl" style={{ color: "var(--color-primary)" }}>
+            {currency.format(item.precio)}
+          </span>
         </div>
         {item.descripcion && (
           <p className="text-muted-foreground text-sm">{item.descripcion}</p>
@@ -67,32 +68,30 @@ export const MenuSection = ({ clienteId }: { clienteId: string }) => {
         .eq("cliente_id", clienteId)
         .order("orden");
 
-      if (data) {
-        setMenuItems(data);
-      }
+      if (data) setMenuItems(data);
     };
 
     fetchMenuItems();
   }, [clienteId]);
 
   return (
-    <section className="py-20 px-4 bg-secondary">
+    <section className="py-20 px-4" style={{ background: "var(--color-secondary)" }}>
       <div className="container mx-auto max-w-6xl">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl font-bold text-center mb-4 text-foreground"
+          className="text-4xl font-bold text-center mb-4 text-white"
         >
-          Our Menu
+          Nuestra Carta
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"
+          className="text-center text-white/80 mb-12 max-w-2xl mx-auto"
         >
-          Discover our selection of authentic Spanish tapas, prepared with traditional recipes and the finest ingredients
+          Tapas y platos tradicionales preparados con ingredientes de calidad.
         </motion.p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {menuItems.map((item, index) => (

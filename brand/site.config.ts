@@ -5,9 +5,9 @@ export type SiteConfig = {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
-  logo: string;     // ej: /brands/template/logo.png
-  favicon: string;  // ej: /brands/template/favicon.png
-  heroImage: string;// ej: /brands/template/hero.jpg
+  logo: string;
+  favicon: string;
+  heroImage: string;
   phone: string;
   whatsapp?: string;
   address: string;
@@ -23,12 +23,16 @@ export const site: SiteConfig = {
   primaryColor: "#C0392B",
   secondaryColor: "#1F2937",
   accentColor: "#F59E0B",
-  logo: "/brands/template/logo.png",
-  favicon: "/brands/template/favicon.png",
-  heroImage: "/brands/template/hero.jpg",
+  logo: "public/Brands/Template/logo.png",
+  favicon: "public/Brands/Template/favicon.png",
+  heroImage: "public/Brands/Template/hero.png",
   phone: "+54 9 11 1234-5678",
   address: "Dirección, Ciudad",
   instagram: "",
   facebook: "",
-  menuSections: [{ key: "parrilla", title: "Parrilla" }]
+  menuSections: [
+    { key: "entradas", title: "Entradas" },
+    { key: "parrilla", title: "Parrilla" },
+    { key: "postres",  title: "Postres" }
+  ]
 };
